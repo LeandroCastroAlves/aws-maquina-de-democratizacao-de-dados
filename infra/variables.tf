@@ -22,8 +22,19 @@ variable "s3_bucket_glue_script" {
   default = ""
 }
 
-variable "max_capacity" {
-  default = 10
+variable "number_of_workers" {
+  type = number
+  default = 2  # Default number of workers for Glue Job
+}
+
+variable "worker_type" {
+  type = string
+  default = "G.1X"  # Tipo de worker para Glue Job
+}
+
+variable "max_concurrent_runs" {
+  type = number
+  default = 3  # Concurrency for temporary Glue jobs
 }  # Concurrency for temporary Glue jobs
 
 variable "lambda_script_path" {

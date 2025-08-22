@@ -47,7 +47,7 @@ resource "aws_iam_role_policy_attachment" "attach_glue" {
 # ------------------------------
 resource "aws_lambda_function" "lambda_democratizacao" {
   filename      = "${var.lambda_zip_path}"
-  function_name = "${var.project}-lambda-democratizacao-${var.environment}"
+  function_name = "${var.project}-lambda-${var.environment}"
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.9"
   role          = aws_iam_role.lambda_role.arn
@@ -87,15 +87,20 @@ resource "aws_glue_job" "democratizacao_v3" {
 
   command {
     name            = "glueetl"
-    script_location = "s3://${var.s3_bucket_glue_script}/${var.glue_script_path}"
+    script_location = "${var.s3_bucket_glue_script}/${var.glue_script_path}"
   }
 
   default_arguments = {
     "--job-language" = "python"
-    "--TempDir"      = "s3://${var.s3_bucket_glue_script}/temporary/"
+    "--TempDir"      = "${var.s3_bucket_glue_script}/temporary/"
+  }
+  
+  execution_property {
+    max_concurrent_runs = var.max_concurrent_runs 
   }
 
-  max_capacity = var.max_capacity
+  number_of_workers = var.number_of_workers
+  worker_type       = "G.1X"  # Tipo de worker para Glue Job
   timeout      = 60  # Timeout in minutes
   max_retries  = 1
 }
